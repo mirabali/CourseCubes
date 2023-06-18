@@ -50,7 +50,7 @@ const router = createBrowserRouter([
     element: <EditPresentationPage />
   },
   {
-    path: "/slide/:uuidSlide/",
+    path: "/presentation/:uuidPresentation",
     element: <ViewSlide />
   },
   {

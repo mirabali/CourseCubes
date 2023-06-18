@@ -1,6 +1,6 @@
 import { ReactComponent as Logo } from "../cc_logo.svg";
 import { Box, Typography, TextField, Button, Grid, RadioGroup, FormControlLabel, Radio, Paper, FormControl, FormLabel, FormGroup, Checkbox } from "@mui/material";
-import { useState } from "react";
+import { useState, setState } from "react";
 import isUrl from "is-url";
 //import EditPresentationPage from "./edit-presentation-page";
 import { useNavigate } from "react-router-dom";
@@ -12,11 +12,20 @@ function CreatePresentationPage() {
     //const [toPresentation, setToPresentation] = useState(false);
     const [textBox, setTextBox] = useState("Paste Content");
     const [promptBox, setPromptBox] = useState("");
-    const [featureBox, setFeatureBox] = useState("");
+    const [featureBox, setFeatureBox] = useState({
+        "examples": false,
+        "quizzes": false,
+        "robotTutor": false,
+        "audience": false,
+        "presenterNotes": false,
+        "examDocument": false
+    });
+    const featureOptions = ["examples", "quizzes", "robotTutor", "audience", "presenterNotes", "examDocument"];
     //const [id, setId] = useState("");
     var id = "";
-    var idChecker = false;
     const navigate = useNavigate();
+    const { examples, quizzes, robotTutor, audience, presenterNotes, examDocument } = featureBox;
+
 
     function handleClick(event) {
         if (isUrl(textBox)) {
@@ -26,25 +35,34 @@ function CreatePresentationPage() {
         }
         data["prompt"] = promptBox;
         data["feature"] = featureBox;
-        id = "aea7580d607b42369bc406902b88f40a";
+        id = "06045cbc-6de5-4b4f-b316-c0e705-da4e65";
         navigate("/presentation/edit/" + id);
+        /*
+        res.uuid = "a0373b1f-3585-4810-b77c-ba94e9cf11b3"
+        fetch("http://127.0.0.1:8000/presentation/", {
+            method: "POST",
+            body: JSON.stringify(data)
+        }).then(res => res.json()).then(res => {
+            console.log("res" + res["uuid"]);
+            id = res.uuid;
+            console.log("Check" + id + idChecker);
+            navigate("/presentation/edit/" + id);
+        }).catch((error) => {
+            console.error(error);
+        })
+        */
 
     }
-    /*
-    <Grid container spacing={2}>
-        <Grid item xs={8}>
-            <Item>xs=8</Item>
-        </Grid>
-        <Grid item xs={4}>
-            <Item>xs=4</Item>
-        </Grid>
-        <Grid item xs={4}>
-            <Item>xs=4</Item>
-        </Grid>
-        <Grid item xs={8}>
-            <Item>xs=8</Item>
-        </Grid>
-    </Grid>*/
+
+    function handleFeatures(event) {
+        setFeatureBox({
+            ...featureBox,
+            [event.target.name]: event.target.checked,
+        });
+        console.log("yay", featureBox);
+    }
+
+
     //1440: width
     //1024: height
     //1.475 --> write your prompt
@@ -83,14 +101,16 @@ function CreatePresentationPage() {
 
                     <Paper sx={{ marginLeft: "198px", width: "74%" }}>
                         <Grid container marginLeft={5}>
-                            {["Include Examples", "Include Test Your Understanding Quizzes", "Create Robot Tutor Video", "Include Audience Questions", "Include Presenter Notes", "Creation Additional Exam Document"].map((label) => (
+                            {["Include Examples", "Include Test Your Understanding Quizzes", "Create Robot Tutor Video", "Include Audience Questions", "Include Presenter Notes", "Creation Additional Exam Document"].map((label, index) => (
                                 <Grid item xs={4} sx={{ display: "flex", justifyContent: "flexStart" }}>
                                     <FormControlLabel
                                         sx={{ marginLeft: "0px" }}
                                         marginLeft={1}
-                                        key={label}
+                                        key={index}
+                                        name={featureOptions[index]}
+                                        checked={featureBox[featureOptions[index]]}
                                         control={<Checkbox />}
-                                        onChange
+                                        onChange={(event) => handleFeatures(event)}
                                         label={label}
                                     />
                                 </Grid>
@@ -101,7 +121,7 @@ function CreatePresentationPage() {
                     </Paper>
                 </Grid >
                 <Grid item xs={1.77} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                    <Button sx={{ top: "700px", position: "absolute", width: "212.84px", height: "60px", font: "Inter", background: "linear-gradient(104.93deg, #A448CF -8.4%, #237BFF 142.92%)" }} onClick={handleClick} variant="contained">Generate Slides</Button>
+                    <Button sx={{ top: "700px", position: "absolute", width: "182.84px", height: "40px", font: "Inter", background: "linear-gradient(104.93deg, #A448CF -8.4%, #237BFF 142.92%)" }} onClick={handleClick} variant="contained">Generate Slides</Button>
                 </Grid>
             </Grid >
 

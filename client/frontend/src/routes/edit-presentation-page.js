@@ -1,124 +1,50 @@
 import { useEffect, useState } from "react";
-import { Box, Paper, Typography, TextField, Button } from "@mui/material";
+import { Box, Paper, Typography, TextField, Button, Grid } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { ReactComponent as Logo } from "../cc_logo.svg";
-
+import { useNavigate } from "react-router-dom";
+import Slide from "./slide";
 function EditPresentationPage() {
     const params = useParams();
     const presentationId = params["uuidPresentation"];
     const [slideLength, setSlideLength] = useState(0);
-    const [currentSlide, setCurrentSlide] = useState(10);
-    const [sectionSlide, setSectionSlide] = useState(0);
+    const [currentSlide, setCurrentSlide] = useState(3);
     const [size, setSize] = useState([]);
     const [location, setLocation] = useState([]);
     const [text, setText] = useState();
     const [slideData, setSlideData] = useState({});
     var currentSlideObj;
-    var correctSlideId;
     var fullSize = [];
     var shapesLocation = [];
     var shapesSize = [];
     var shapesText = [];
     var shapeIndex = 0;
-    const figma_x = 804;
-    const figma_y = 452;
+    const figma_x = 1;
+    const figma_y = 1;
     var dimensions = [];
     var indices = []; //dimensions in pixels, 2d array
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/presentation/" + presentationId + "/", {
+        fetch("http://127.0.0.1:8000/presentation/" + presentationId, {
             method: "GET"
         }).then((res) => {
             return res.json()
         }).then((res) => {
-            console.log("Response" + res["sections"][0].sections[0].slide);
-            var numSlides = res.sections.length;
-            for (let section of res.sections) {
-                if (section.hasOwnProperty("sections")) {
-                    numSlides += section.sections.length
-                }
-            }
-            setSlideLength(numSlides);
+            console.log("Response", res["slides"]);
             //setPresentationData(res);
-            if (res !== undefined && res.sections !== undefined) {
-                currentSlideObj = res["sections"][currentSlide];
-                if ("sections" in currentSlideObj) {
-                    correctSlideId = (currentSlideObj["sections"][sectionSlide].slide).replaceAll("-", "");
-                    fetch("http://127.0.0.1:8000/slide/" + correctSlideId + "/", {
-                        method: "GET"
-                    }).then(res => res.json())
-                        .then((res) => {
-                            //generate(res);
-                            setSlideData(res);
-                            /*
-                            res.shapes.map(shape => {
-                                if (shape.shape_type === "TEXT") {
-                                    setLocation(shape.location);
-                                    setSize(shape.size);
-                                    shape.shape_data.paragraphs.map(para => {
-                                        para.runs.map()
-                                    })
-                                }
-                            })
-                            */
-                        })
-                } else {
-                    fetch("http://127.0.0.1:8000/slide/" + currentSlideObj.slide + "/", {
-                        method: "GET"
-                    }).then(res => res.json())
-                        .then((res) => {
-                            console.log("helloyy")
-                            console.log("kya lafda hain iska")
-                            //generate(res);
-                            setSlideData(res);
-                        })
-                }
-            }
-        });
-    }, [sectionSlide, currentSlide])
+            setSlideData(res["slides"][currentSlide]);
+            setSlideLength(res.slides.length);
 
-    function generate() {
-        if (slideData && slideData.shapes) {
-            fullSize.push(slideData["slide-display"]["dimensions-x"]);
-            fullSize.push(slideData["slide-display"]["dimensions-y"]);
-            slideData.shapes.map(shape => {
-                if (shape.shape_type === "TEXT") {
-                    var shapeText = "";
-                    shapesLocation.push(shape.location);
-                    shapesSize.push(shape.size);
-                    shape.shape_data.paragraphs.map(para => {
-                        if (para !== []) {
-                            para.runs.map(parText => {
-                                shapeText += parText.text;
-                            })
-                        }
-                    })
-                    shapesText.push(shapeText);
-                }
-            })
-            console.log("Went to generate");
-            return ratioCalculation();
-        }
+        })
+    }, [currentSlide])
 
+    function handleClick(event) {
+        navigate("/presentation/" + presentationId);
     }
 
-    function ratioCalculation() {
-        //used to figure out locations of textboxes and thus text
-        var x_dim = fullSize[0];
-        var y_dim = fullSize[1];
-        var left; //from the left edge of screen
-        var top; //from the top edge
-        var width; //length of a rectangle
-        var height; //width of a rectangle
-        for (let i = 0; i < shapesLocation.length; i++) {
-            width = (shapesSize[i][0] / x_dim) * figma_x;
-            height = (shapesSize[i][1] / y_dim) * figma_y;
-            left = (shapesLocation[i][0] / x_dim) * figma_x;
-            top = (shapesLocation[i][1] / y_dim) * figma_y;
-            dimensions[i] = [width, height, left, top];
-            indices.push(i);
-        }
-    }
+
+
 
     //Helper function to convert Inches and Pt (font) to Emu (the standard measurement of OpenXML)
     function EmuToPixel() {
@@ -127,45 +53,65 @@ function EditPresentationPage() {
         //PT = lambda p: int(p * 12700);
     }
 
-    generate();
+    //generate();
     //804 x 452: figma design slide
     const numSlides = new Array(slideLength);
+    console.log("shapess" + slideData["shapes"]);
 
     return (
         <>
-            <div style={{ position: "relative", width: "94px", height: "94px", left: "36px", top: "25px" }}>
-                <Logo></Logo>
-            </div>
-            <div>
-                <Box sx={{ position: "absolute", width: figma_x + "px", height: figma_y + "px", left: "379px", top: "211px" }} border="1px solid #D7D7D7" background="#FFFFFF" boxShadow="-1px -1px 4px rgba(0, 0, 0, 0.1)" boxSizing="border-box">
-                    {indices.map(index =>
-                        //console.log("Check");
-                        <Box key={index} id="outlined-basic" border="1px solid" sx={{ display: "flex", alignItems: "center", justifyContent: "center", position: "absolute", height: dimensions[index][1].toString() + "px", left: dimensions[index][2].toString() + "px", top: dimensions[index][3].toString() + "px", width: dimensions[index][0].toString() + "px" }}>
-                            <Typography fontSize="11px" font="Inter" align="center">{shapesText[index]}</Typography>
-                        </Box>
-                    )}
-                    {/*<Typography sx={{ lineHeight: dimensions[index][1].toString() + "px", left: dimensions[index][2].toString() + "px", position: "absolute", top: dimensions[index][3].toString() + "px", width: dimensions[index][0].toString() + "px" }}>{shapesText[index]}</Typography>*/}
-                </Box>
+            <Grid container rows={12} spacing={2} sx={{ display: "flex", justifyContent: "center", alignItems: "center", direction: "row" }}>
+                <Grid item xs={3}>
+                    <Grid container direction="row" sx={{ display: "flex", justifyContent: "flexStart", marginTop: "25px" }}>
+                        <Grid item xs={0.783} sx={{ marginLeft: "36px", height: "9.179%" }}>
+                            <Logo></Logo>
+                        </Grid>
+                    </Grid>
 
-            </div >
+                </Grid>
+
+                <Grid item xs={6} ></Grid>
+                <Grid item xs={2} sx={{ displau: "flex", justifyContent: "center", alignItems: "center" }}>
+                    <Button sx={{ font: "Inter", background: "linear-gradient(104.93deg, #A448CF -8.4%, #237BFF 142.92%)" }} onClick={handleClick} variant="contained">Play</Button>
+                </Grid>
+            </Grid >
+
+            <Grid container rows={12} spacing={2} sx={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", direction: "row" }}>
+                <Grid item xs={3}>
+                    <Grid container rows={slideLength}>
+                        {numSlides.map(num =>
+                            <Grid item xs={slideLength}>
+                                {(slideData.size === undefined) ? null :
+                                    (slideData.virtual === true) ?
+                                        (setCurrentSlide(currentSlide + 1)) :
+                                        (<Slide size={slideData.size} shapes={slideData.shapes}> </Slide>)}
+                            </Grid>
+                        )}
+                    </Grid>
+                </Grid>
+                <Grid xs={7}>
+                    <Grid container rows={12} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <Grid item xs={12}>
+                            {(slideData.size === undefined) ? null :
+                                (slideData.virtual === true) ?
+                                    (setCurrentSlide(currentSlide + 1)) :
+                                    (<Slide size={slideData.size} shapes={slideData.shapes}> </Slide>)
+
+                            }
+                        </Grid>
+                    </Grid>
+
+                </Grid>
+            </Grid >
 
 
-            {numSlides.map(slide => {
-                <div style={{ position: "absolute", top: "195px", left: "10px", width: "120px", height: "96px" }}>
-                    <Box border="1px solid" sx={{ p: 2 }}>
-                        hello
-                    </Box>
-                </div>
-            })
-            }
 
-            <div style={{ position: "absolute", width: "118px", height: "48px", left: "1280px", top: "32px" }}>
-                <Button font="Inter">
-                    Play
-                </Button>
-            </div>
+
+
+
+
         </>
     );
-}
 
+}
 export default EditPresentationPage;
