@@ -48,7 +48,7 @@ class GPT():
         return ans
     
 import requests
-from .Presentation import Image, Shape, Video
+from .PresentationModels import Image, Shape, Video
 
 # TODO: Regen keys and make an environment variable
 bing_api_key = "aeb0b992e74a49109231211243800e2b"
@@ -121,4 +121,4 @@ class CreativeReality():
 
 # print(GPT.query("How are you bro"))
 # print(CreativeReality.video_url_duration("This is a sample for which we are generating a video"))
-# print(BingImage.image_url("Video"))
+#print(BingImage.image_url("Video"))
