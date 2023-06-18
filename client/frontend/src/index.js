@@ -13,6 +13,9 @@ import {
 import CreatePresentationPage from './routes/create-presentation-page';
 import EditPresentationPage from './routes/edit-presentation-page';
 import { useEffect, useState } from 'react';
+import FlowAll from './routes/flow-all';
+import OverviewFlow from './routes/overview-flow';
+import ExecutionFlow from './routes/execution-flow';
 
 function HelloPage() {
   const [text, setText] = useState('');
@@ -45,6 +48,18 @@ const router = createBrowserRouter([
     path: "/presentation/edit/:uuidPresentation",
     element: <EditPresentationPage />
   },
+  {
+    path: "/flow/all",
+    element: <FlowAll/>,
+  },
+  {
+    path: "/flow/create/:uuidFlow",
+    element: <OverviewFlow/>
+  },
+  {
+    path: "/flow/execute/:uuidExecution",
+    element: <ExecutionFlow/>
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
