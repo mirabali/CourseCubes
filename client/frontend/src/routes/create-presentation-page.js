@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 function CreatePresentationPage() {
 
     var data = {}
+    var result = []
     //const [toPresentation, setToPresentation] = useState(false);
     const [textBox, setTextBox] = useState("Paste Content");
     const [promptBox, setPromptBox] = useState("");
@@ -28,29 +29,43 @@ function CreatePresentationPage() {
 
 
     function handleClick(event) {
+        data["prompt"] = promptBox;
+        result.push(data["prompt"]);
         if (isUrl(textBox)) {
             data["url"] = textBox;
+            result.push(data["url"]);
         } else {
             data["text"] = textBox;
+            result.push(data["text"]);
         }
-        data["prompt"] = promptBox;
         data["feature"] = featureBox;
-        id = "06045cbc-6de5-4b4f-b316-c0e705-da4e65";
-        navigate("/presentation/edit/" + id);
-        /*
-        res.uuid = "a0373b1f-3585-4810-b77c-ba94e9cf11b3"
+
+        result.push(data.feature["examples"]);
+        result.push(data.feature["quizzes"]);
+        result.push(data.feature["robotTutor"]);
+        result.push(data.feature["audience"]);
+        result.push(data.feature["presenterNotes"]);
+        result.push(data.feature["examDocument"]);
+
+
+        console.log("dta", data);
+        console.log("result", result);
+        //id = "06045cbc-6de5-4b4f-b316-c0e705-da4e65";
+        //navigate("/presentation/edit/" + id);
+
+        //res.uuid = "a0373b1f-3585-4810-b77c-ba94e9cf11b3"
         fetch("http://127.0.0.1:8000/presentation/", {
             method: "POST",
-            body: JSON.stringify(data)
+            body: result,
         }).then(res => res.json()).then(res => {
             console.log("res" + res["uuid"]);
             id = res.uuid;
-            console.log("Check" + id + idChecker);
-            navigate("/presentation/edit/" + id);
+            //console.log("Check" + id + idChecker);
+            navigate("/flow/execute/" + id);
         }).catch((error) => {
             console.error(error);
         })
-        */
+
 
     }
 

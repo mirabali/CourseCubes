@@ -13,6 +13,7 @@ function EditPresentationPage() {
     const [location, setLocation] = useState([]);
     const [text, setText] = useState();
     const [slideData, setSlideData] = useState({});
+    //const [validSlides, setValidSlides] = useState([]);
     var currentSlideObj;
     var fullSize = [];
     var shapesLocation = [];
@@ -33,6 +34,7 @@ function EditPresentationPage() {
         }).then((res) => {
             console.log("Response", res["slides"]);
             //setPresentationData(res);
+
             setSlideData(res["slides"][currentSlide]);
             setSlideLength(res.slides.length);
 
@@ -56,6 +58,10 @@ function EditPresentationPage() {
     //generate();
     //804 x 452: figma design slide
     const numSlides = new Array(slideLength);
+    for (let i = 0; i < 10; i++) {
+        numSlides[i] = i;
+    }
+    console.log("slides num", numSlides);
     console.log("shapess" + slideData["shapes"]);
 
     return (
@@ -76,20 +82,20 @@ function EditPresentationPage() {
                 </Grid>
             </Grid >
 
-            <Grid container rows={12} spacing={2} sx={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", direction: "row" }}>
+            <Grid container rows={12} sx={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", direction: "row" }}>
                 <Grid item xs={3}>
-                    <Grid container rows={slideLength}>
-                        {numSlides.map(num =>
-                            <Grid item xs={slideLength}>
-                                {(slideData.size === undefined) ? null :
-                                    (slideData.virtual === true) ?
-                                        (setCurrentSlide(currentSlide + 1)) :
-                                        (<Slide size={slideData.size} shapes={slideData.shapes}> </Slide>)}
-                            </Grid>
-                        )}
+                    <Grid container rows={slideLength} sx={{ display: "flex", alignItems: "center", justifyContent: "center", marginLeft: "70px" }}>
+                        {numSlides.map((num) => (
+                            slideData.size === undefined ? null :
+                                (slideData.virtual === true) ?
+                                    (setCurrentSlide(currentSlide + 1)) :
+                                    (< Grid item xs={slideLength} sx={{ display: "flex", alignItems: "center", justifyContent: "flex-start" }} >
+                                        <Button onClick={(event) => setCurrentSlide(num)} variant="outlined">{num}</Button>
+                                    </Grid>)
+                        ))}
                     </Grid>
                 </Grid>
-                <Grid xs={7}>
+                <Grid xs={8} marginTop="15px">
                     <Grid container rows={12} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <Grid item xs={12}>
                             {(slideData.size === undefined) ? null :
