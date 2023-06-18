@@ -12,6 +12,7 @@ import {
 } from 'react-router-dom';
 import CreatePresentationPage from './routes/create-presentation-page';
 import EditPresentationPage from './routes/edit-presentation-page';
+import ViewSlide from './routes/view-slide';
 import { useEffect, useState } from 'react';
 
 function HelloPage() {
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
     path: "/presentation/edit/:uuidPresentation",
     element: <EditPresentationPage />
   },
+  {
+    path: "/slide/:uuidSlide/",
+    element: <ViewSlide />
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
