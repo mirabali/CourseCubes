@@ -10,6 +10,7 @@ import ReactFlow, {
   MarkerType
 } from 'reactflow';
 import Button from '@mui/material/Button';
+import { useNavigate } from "react-router-dom";
 
 
 import { v4 as uuidv4 } from 'uuid';
@@ -92,13 +93,18 @@ const ExecutionFlow = () => {
 
   useEffect(() => {
     reload()
-  }, [currentLayer])
+  }, [currentLayer]);
+
+  const navigate = useNavigate();
 
   async function reload() {
     await fetch(getBaseURL() + '/execution/' + uuidExecution)
       .then(res => res.json())
       .then(res => {
         console.log("FLOWCHART GET", res);
+        if (res.done) {
+            navigate("/presentation/edit/"+res.return_value);
+        }
         setNodes(res.functions.map(
           (servernode) => ({
               id: servernode.id,
@@ -134,14 +140,7 @@ const ExecutionFlow = () => {
 
   const [currentCount, setCount] = useState(1);
   useEffect(() => {
-    let id = null;
-    nodes.forEach(node => {
-      console.log("NODE FINISHED", node.data.data.finished)
-      if (node.data.data.running === true && id === null) {
-        id = setInterval(timer, 1000);
-      }
-    })
-    if (nodes.length == 0) id = setInterval(timer, 1000);
+    let id = setInterval(timer, 1000);
     console.log("REFRESH COUNT = ", currentCount);
     reload();
     if (id !== null)

@@ -14,9 +14,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, re_path, include
-from . import paths
+from . import paths, settings
+from django.conf.urls.static import static
+from .core import test
 
 urlpatterns = [
     re_path(r'^django_rq/', include('django_rq.urls')),
@@ -26,5 +29,10 @@ urlpatterns = [
     path('flowchart/', paths.create_flowchart),
     path('flowchart/<uuid_flowchart>', paths.get_replace_flowchart),
     path('execution/flowchart/<uuid_flowchart>', paths.execute_flowchart),
-    path('execution/<uuid_execution>', paths.get_execution)
-]
+    path('execution/<uuid_execution>', paths.get_execution),
+    
+    path('presentation/', paths.create_presentation),
+    path('presentation/<uuid_presentation>', paths.get_presentation)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+#test()

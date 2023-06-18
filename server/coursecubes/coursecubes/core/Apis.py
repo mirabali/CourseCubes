@@ -48,15 +48,18 @@ class GPT():
         return ans
     
 import requests
-from .Presentation import Image, Shape, Video
+from .PresentationModels import Image, Shape, Video
 
 # TODO: Regen keys and make an environment variable
 bing_api_key = "aeb0b992e74a49109231211243800e2b"
 class BingImage():
     def image_url(q):
-        r = requests.get('https://api.bing.microsoft.com/v7.0/images/search',
-                     params={'q': q},
-                     headers={'Ocp-Apim-Subscription-Key': bing_api_key})
+        try:
+            r = requests.get('https://api.bing.microsoft.com/v7.0/images/search',
+                        params={'q': q},
+                        headers={'Ocp-Apim-Subscription-Key': bing_api_key})
+        except:
+            return None
         
         if r.status_code != 200: return None
         search_results = r.json()
@@ -121,4 +124,4 @@ class CreativeReality():
 
 # print(GPT.query("How are you bro"))
 # print(CreativeReality.video_url_duration("This is a sample for which we are generating a video"))
-# print(BingImage.image_url("Video"))
+#print(BingImage.image_url("Video"))
