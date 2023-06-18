@@ -5,28 +5,9 @@ from ordered_model.models import OrderedModel
 size_x = 9144000
 size_y = 16256000
 
-class Slide(OrderedModel):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
-    presentation = models.ForeignKey('Presentation', on_delete=models.CASCADE, editable=False)
-    size_x = models.IntegerField()
-    size_y = models.IntegerField()
-    virtual = models.BooleanField(default=False)
-    
-    background_image_url = models.URLField()
-    #next_slide = models.ForeignKey('Slide', editable=False, on_delete=models.CASCADE, null=True)
-
-    def to_dict(self):
-        return {
-            "virtual": self.virtual,
-            "size": [self.size_x, self.size_y],
-            "shapes": [
-                shape.to_dict() for shape in self.shape_set.all()
-            ]
-        }
-
 class Shape(OrderedModel):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
-    slide = models.ForeignKey(Slide, on_delete=models.CASCADE)
+    slide = models.ForeignKey('Slide', on_delete=models.CASCADE)
     shape_type = models.CharField(choices=[("Image", "Image"), ("TextBox", "TextBox"), ("Video", "Video"), ("MCQ", "MCQ")], max_length=10)
     location_x = models.PositiveIntegerField()
     location_y = models.PositiveIntegerField()
@@ -108,6 +89,32 @@ class MCQChoice(OrderedModel):
             "explanation": self.explanation,
         }
 
+class Slide(OrderedModel):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
+    presentation = models.ForeignKey('Presentation', on_delete=models.CASCADE, editable=False)
+    size_x = models.IntegerField()
+    size_y = models.IntegerField()
+    virtual = models.BooleanField(default=False)
+    
+    background_image_url = models.URLField()
+
+    def to_dict(self):
+        return {
+            "virtual": self.virtual,
+            "size": [self.size_x, self.size_y],
+            "shapes": [
+                shape.to_dict() for shape in self.shape_set.all()
+            ]
+        }
+    
+    def add_video(self, video_source, video_duration):
+        shape = Shape(location_x=size_x*5//6, location_y=size_y*5//6, size_x=size_x//8, size_y=size_y//8, shape_type="Video")
+        shape.save()
+        
+        video = Video(source=video_source, duration=video_duration, shape=shape)
+        video.save()
+        return self
+
 def set_section(section, slide):
     slide.above(section)
 
@@ -128,8 +135,6 @@ class Presentation(models.Model):
         return p
     
     def get_new_slide(self, background_img_url="/static/TitleText.svg"):
-        print(isinstance(self, Presentation))
-        print(type(self))
         slide = Slide(background_image_url=background_img_url, presentation=self, size_x=size_x,size_y=size_y)
         slide.save()
         return slide
@@ -145,6 +150,7 @@ class Presentation(models.Model):
         shape.save()
         tb = TextBox(shape=shape, text_box_type="Title", text=title)
         tb.save()
+        return slide
     
     def add_section_header(self,title, section=None):
         slide = self.get_new_slide("/static/Section.svg")
@@ -156,6 +162,8 @@ class Presentation(models.Model):
         shape.save()
         tb = TextBox(shape=shape, text_box_type="Title", text=title)
         tb.save()
+        
+        return slide
     
     def add_title_text(self,title,text, section=None):
         slide = self.get_new_slide("/static/TitleText.svg")
@@ -176,6 +184,8 @@ class Presentation(models.Model):
         
         tb = TextBox(shape=shape2, text_box_type="Text", text=text)
         tb.save()
+        
+        return slide
     
     def add_title_text_image(self,title, text, img, section=None):
         if img == None: self.add_title_text(title, text, section=section)
@@ -203,6 +213,8 @@ class Presentation(models.Model):
         shape2.save()
         tb = Image(shape=shape2, source=img)
         tb.save()
+        
+        return slide
     
     def add_mcq(self, q, choices, section=None): # Choices to be in format (choice_text, explanation, correct)
         slide = self.get_new_slide("/static/Image.svg")
@@ -220,18 +232,19 @@ class Presentation(models.Model):
         for choice_text, explanation, correct in choices:
             mcc = MCQChoice(mcq=mc, correct=correct, explanation=explanation, choice_text=choice_text)
             mcc.save()
+        
+        return slide
     
     def add_section(self):
         slide = Slide(background_image_url="/static/TitleText.svg", presentation=self, size_x=size_x,size_y=size_y)
         slide.virtual = True
         slide.save()
-        return slide
+        return slide        
 
 
 from .Apis import BingImage
 def test():
     p = Presentation.new()
-    print(p, type(p))
     p.add_title_slide("Cookies Explained")
     
     sections = []

@@ -29,7 +29,10 @@ urlpatterns = [
     path('flowchart/', paths.create_flowchart),
     path('flowchart/<uuid_flowchart>', paths.get_replace_flowchart),
     path('execution/flowchart/<uuid_flowchart>', paths.execute_flowchart),
-    path('execution/<uuid_execution>', paths.get_execution)
+    path('execution/<uuid_execution>', paths.get_execution),
+    
+    path('presentation/', paths.create_presentation),
+    path('presentation/<uuid_presentation>', paths.get_presentation)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 #test()

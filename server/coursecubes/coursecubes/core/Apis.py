@@ -54,9 +54,12 @@ from .PresentationModels import Image, Shape, Video
 bing_api_key = "aeb0b992e74a49109231211243800e2b"
 class BingImage():
     def image_url(q):
-        r = requests.get('https://api.bing.microsoft.com/v7.0/images/search',
-                     params={'q': q},
-                     headers={'Ocp-Apim-Subscription-Key': bing_api_key})
+        try:
+            r = requests.get('https://api.bing.microsoft.com/v7.0/images/search',
+                        params={'q': q},
+                        headers={'Ocp-Apim-Subscription-Key': bing_api_key})
+        except:
+            return None
         
         if r.status_code != 200: return None
         search_results = r.json()

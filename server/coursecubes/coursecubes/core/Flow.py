@@ -21,9 +21,16 @@ async def run_scheduler(all_funcs_to_run):
             tasks.append(run_func(func))
     all_funcs_to_run = await TaskGroup(*tasks)
 
-def run_scheduler_main(flowchart):
+def run_scheduler_main(flowchart_and_args):
+    flowchart, args = flowchart_and_args
     all_funcs_to_run = flowchart.functions
     func_list = [all_funcs_to_run[k] for k in all_funcs_to_run]
+    
+    for func_id in all_funcs_to_run:
+        func = all_funcs_to_run[func_id]
+        if func.is_ready_to_start():
+            func.args = args
+            func.num_args = len(args)
     asyncio.run(run_scheduler(func_list))
 
 class FunctionModel(models.Model):
@@ -353,14 +360,21 @@ class FlowChartExecution(models.Model):
 
     def to_dict(self):
         d = {"functions": [], "edges": [], "highest_layer": self.highest_layer}
+        terminal_found = False
         for function_execution_model in self.functionexecution_set.all():
             funcmodel = function_execution_model.function
 
             f = self.functions[funcmodel.id]
             f.init_from_func_execution(function_execution_model)
             #f.layer = function_execution_model.layer
+            
+            f_dict = f.to_dict()
+            f_dict["terminal"] = False
+            if len(f.start_edges) == 0 and not terminal_found:
+                f_dict["terminal"] = True
+                terminal_found = True
 
-            d["functions"].append(f.to_dict())
+            d["functions"].append(f_dict)
         
         for edge in self.edges:
             d["edges"].append(edge.to_dict())
