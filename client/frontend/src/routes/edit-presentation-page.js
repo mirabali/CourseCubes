@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Paper, Typography, TextField, Button, Grid } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { ReactComponent as Logo } from "../cc_logo.svg";
 import { useNavigate } from "react-router-dom";
@@ -9,21 +9,7 @@ function EditPresentationPage() {
     const presentationId = params["uuidPresentation"];
     const [slideLength, setSlideLength] = useState(0);
     const [currentSlide, setCurrentSlide] = useState(3);
-    const [size, setSize] = useState([]);
-    const [location, setLocation] = useState([]);
-    const [text, setText] = useState();
     const [slideData, setSlideData] = useState({});
-    //const [validSlides, setValidSlides] = useState([]);
-    var currentSlideObj;
-    var fullSize = [];
-    var shapesLocation = [];
-    var shapesSize = [];
-    var shapesText = [];
-    var shapeIndex = 0;
-    const figma_x = 1;
-    const figma_y = 1;
-    var dimensions = [];
-    var indices = []; //dimensions in pixels, 2d array
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,7 +19,6 @@ function EditPresentationPage() {
             return res.json()
         }).then((res) => {
             console.log("Response", res["slides"]);
-            //setPresentationData(res);
 
             setSlideData(res["slides"][currentSlide]);
             setSlideLength(res.slides.length);
@@ -42,23 +27,12 @@ function EditPresentationPage() {
     }, [currentSlide])
 
     function handleClick(event) {
-        navigate("/presentation/" + presentationId);
+        navigate("/presentation/" + presentationId + "/" + currentSlide);
     }
 
 
-
-
-    //Helper function to convert Inches and Pt (font) to Emu (the standard measurement of OpenXML)
-    function EmuToPixel() {
-        //Usage: 12 Inches --> INCHES(12), 40 pt = PT(40);
-        //INCHES = lambda inches: int(inches * 914400);
-        //PT = lambda p: int(p * 12700);
-    }
-
-    //generate();
-    //804 x 452: figma design slide
     const numSlides = new Array(slideLength);
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 16; i++) {
         numSlides[i] = i;
     }
     console.log("slides num", numSlides);
@@ -88,7 +62,7 @@ function EditPresentationPage() {
                         {numSlides.map((num) => (
                             slideData.size === undefined ? null :
                                 (slideData.virtual === true) ?
-                                    (setCurrentSlide(currentSlide + 1)) :
+                                    (null) :
                                     (< Grid item xs={slideLength} sx={{ display: "flex", alignItems: "center", justifyContent: "flex-start" }} >
                                         <Button onClick={(event) => setCurrentSlide(num)} variant="outlined">{num}</Button>
                                     </Grid>)
@@ -109,9 +83,6 @@ function EditPresentationPage() {
 
                 </Grid>
             </Grid >
-
-
-
 
 
 
